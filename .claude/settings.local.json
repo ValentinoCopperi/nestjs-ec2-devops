@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm add:*)",
+      "Bash(DATABASE_URL=\"postgresql://user:pass@localhost:5432/db\" pnpm prisma generate)",
+      "Bash(pnpm run:*)",
+      "Bash(node -e \"const p = require\\(''./node_modules/@prisma/adapter-pg/package.json''\\); console.log\\(p.version\\)\")",
+      "Bash(node -e \"const m = require\\(''./node_modules/@prisma/adapter-pg''\\); console.log\\(Object.keys\\(m\\)\\)\")",
+      "Bash(node -e \"const {PrismaPg} = require\\(''./node_modules/@prisma/adapter-pg''\\); console.log\\(PrismaPg.toString\\(\\).substring\\(0,300\\)\\)\")",
+      "Bash(node -e \"const pg = require\\(''pg''\\); const pool = new pg.Pool\\({connectionString: ''postgresql://user:pass@localhost/db''}\\); console.log\\(''ok''\\)\")",
+      "Bash(docker run:*)",
+      "Bash(docker build:*)"
+    ]
+  }
+}

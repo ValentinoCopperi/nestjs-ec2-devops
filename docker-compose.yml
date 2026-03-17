@@ -1,0 +1,28 @@
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres_db_devops
+    environment:
+      - POSTGRES_USER=valentino
+      - POSTGRES_PASSWORD=787879
+      - POSTGRES_DB=postgres_db_devops
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin-db-devops
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - 8080:80
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+

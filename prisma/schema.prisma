@@ -1,0 +1,139 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  DONE
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model User {
+  id            Int              @id @default(autoincrement())
+  email         String           @unique
+  name          String
+  avatarUrl     String?
+  createdAt     DateTime         @default(now())
+
+  memberships   Member[]
+  assignments   TaskAssignment[]
+  comments      Comment[]
+  ownedProjects Project[]        @relation("ProjectOwner")
+}
+
+model Organization {
+  id        Int       @id @default(autoincrement())
+  name      String
+  slug      String    @unique
+  createdAt DateTime  @default(now())
+
+  members   Member[]
+  projects  Project[]
+}
+
+model Member {
+  id             Int          @id @default(autoincrement())
+  role           Role         @default(MEMBER)
+  joinedAt       DateTime     @default(now())
+
+  userId         Int
+  user           User         @relation(fields: [userId], references: [id])
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  @@unique([userId, organizationId])
+}
+
+model Project {
+  id             Int          @id @default(autoincrement())
+  name           String
+  description    String?
+  isArchived     Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+
+  ownerId        Int
+  owner          User         @relation("ProjectOwner", fields: [ownerId], references: [id])
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  tasks          Task[]
+}
+
+model Task {
+  id          Int              @id @default(autoincrement())
+  title       String
+  description String?
+  status      TaskStatus       @default(TODO)
+  priority    Priority         @default(MEDIUM)
+  dueDate     DateTime?
+  createdAt   DateTime         @default(now())
+
+  projectId   Int
+  project     Project          @relation(fields: [projectId], references: [id])
+  parentId    Int?
+  parent      Task?            @relation("SubTasks", fields: [parentId], references: [id])
+  subTasks    Task[]           @relation("SubTasks")
+
+  assignments TaskAssignment[]
+  comments    Comment[]
+  tags        TaskTag[]
+}
+
+model TaskAssignment {
+  assignedAt DateTime @default(now())
+
+  taskId     Int
+  task       Task     @relation(fields: [taskId], references: [id])
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@id([taskId, userId])
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+
+  taskId    Int
+  task      Task     @relation(fields: [taskId], references: [id])
+  authorId  Int
+  author    User     @relation(fields: [authorId], references: [id])
+}
+
+model Tag {
+  id    Int       @id @default(autoincrement())
+  name  String    @unique
+  color String    @default("#94a3b8")
+
+  tasks TaskTag[]
+}
+
+model TaskTag {
+  taskId Int
+  task   Task @relation(fields: [taskId], references: [id])
+  tagId  Int
+  tag    Tag  @relation(fields: [tagId], references: [id])
+
+  @@id([taskId, tagId])
+}
