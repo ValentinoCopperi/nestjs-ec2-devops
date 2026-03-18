@@ -35,4 +35,5 @@ jobs:
           script: |
             docker pull valencopperi/nestjs-deploy-ec2:latest
             docker rm -f nestjs-app
+            docker run --rm --env-file .env valencopperi/nestjs-deploy-ec2:latest npx prisma migrate deploy 
             docker run -d -p 3000:3000 --name nestjs-app --env-file .env valencopperi/nestjs-deploy-ec2:latest
